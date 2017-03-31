@@ -21,6 +21,12 @@ public class playerController : MonoBehaviour {
 	private Vector2 shortMove;
 	private Rigidbody2D myRigidbody;
 
+	enum Direction {
+		Up, Down, Left, Right
+	};
+
+	private Direction curFacing;
+
 	// Use this for initialization
 	void Start () {
 		offset = new Vector2 (0.16f, 0.16f);
@@ -49,7 +55,7 @@ public class playerController : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (frameCount > 0) {
+		if (frameCount!=0) {
 			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
 			//transform.Translate (shortMove, 0f, 0f);
 			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
@@ -64,20 +70,38 @@ public class playerController : MonoBehaviour {
 
 
 	void CheckInput() {
+		Vector2 tempCoord = new Vector2 ();
 		if (Input.GetKeyDown (KeyCode.D)) {	
-			DetermineDest(dXVector);
-			SetUnitFacing ();
+//			DetermineDest(dXVector);
+//			SetUnitFacing ();
+			curFacing = Direction.Right;
+			SetRotate ( 90, 270);
+			tempCoord.Set( myRigidbody.position.x + deltaX, myRigidbody.position.y);
+			ChangePosition (tempCoord);
+
 		} else if (Input.GetKeyDown (KeyCode.A)) {
-			DetermineDest (dXVector * -1);
-			SetUnitFacing ();
+//			DetermineDest (dXVector * -1);
+//			SetUnitFacing ();
+			curFacing = Direction.Left;
+			SetRotate ( 90, 270);
+			tempCoord.Set( myRigidbody.position.x - deltaX, myRigidbody.position.y);
+			ChangePosition (tempCoord);
 		}
 
 		if (Input.GetKeyDown (KeyCode.W)) {
-			DetermineDest (dYVector);
-			SetUnitFacing ();
+//			DetermineDest (dYVector);
+//			SetUnitFacing ();
+			curFacing = Direction.Up;
+			SetRotate ( 180, 0);
+			tempCoord.Set( myRigidbody.position.x, myRigidbody.position.y + deltaY);
+			ChangePosition (tempCoord);
 		} else if (Input.GetKeyDown (KeyCode.S)) {
-			DetermineDest (dYVector * -1);
-			SetUnitFacing ();
+//			DetermineDest (dYVector * -1);
+//			SetUnitFacing ();
+			curFacing = Direction.Down;
+			SetRotate ( 180, 0);
+			tempCoord.Set( myRigidbody.position.x, myRigidbody.position.y - deltaY);
+			ChangePosition (tempCoord);
 		}
 
         if(Input.GetKeyDown(KeyCode.E))
@@ -93,6 +117,10 @@ public class playerController : MonoBehaviour {
 			shortMove = dest / maxFrames;
 			frameCount = maxFrames;
 		}
+	}
+
+	void ChangePosition(Vector2 newCoord) {
+		myRigidbody.MovePosition(newCoord);
 	}
 
 	void SetUnitFacing() {
@@ -119,8 +147,25 @@ public class playerController : MonoBehaviour {
 			transform.Rotate (new Vector3(0,0,rotationCorrect));
 		}
 	}
-
-    void CenterGnome() {
-
-    }
 }
+
+//		if (frameCount!=0) {
+//			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
+//			//transform.Translate (shortMove, 0f, 0f);
+//			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
+//			frameCount--;
+//		}else {
+//			dest = new Vector2 (0, 0);
+//		}
+
+	void SetRotate(float negAngle, float posAngle) {
+		float rotationCorrect;
+
+		if(curFacing == Direction.Left || curFacing == Direction.Down){
+			rotationCorrect = negAngle - transform.eulerAngles.z;
+			transform.Rotate (new Vector3(0,0,rotationCorrect));
+		}else if(curFacing == Direction.Right || curFacing == Direction.Up){
+			rotationCorrect = posAngle - transform.eulerAngles.z;
+			transform.Rotate (new Vector3(0,0,rotationCorrect));
+		}
+	}
