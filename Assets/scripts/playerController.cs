@@ -20,6 +20,9 @@ public class playerController : MonoBehaviour {
 	private Vector2 dest;
 	private Vector2 shortMove;
 	private Rigidbody2D myRigidbody;
+	private Vector2 oldCoord;
+
+	public GameObject topFeeler;
 
 	enum Direction {
 		Up, Down, Left, Right
@@ -29,6 +32,7 @@ public class playerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log ("Player Start Method");
 		offset = new Vector2 (0.16f, 0.16f);
 		tileWidth = 0.16f;
 		tileHeight = 0.16f;
@@ -106,7 +110,7 @@ public class playerController : MonoBehaviour {
 
         if(Input.GetKeyDown(KeyCode.E))
         {
-            CenterGnome();
+            //CenterGnome();
         }
 	}
 
@@ -120,7 +124,19 @@ public class playerController : MonoBehaviour {
 	}
 
 	void ChangePosition(Vector2 newCoord) {
+		oldCoord.Set (myRigidbody.position.x, myRigidbody.position.y);
 		myRigidbody.MovePosition(newCoord);
+		//topFeeler.transform.position.Set (newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
+		//topFeeler.riposition.Set(newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
+		Rigidbody2D tFeel = topFeeler.GetComponent<Rigidbody2D>();
+		Vector2 feelVec = new Vector2 (newCoord.x, newCoord.y);
+		feelVec.y += .32f;
+		tFeel.MovePosition (feelVec);
+		//topFeeler.transform.position.y = newCoord.y + .32f;
+
+
+
+
 	}
 
 	void SetUnitFacing() {
@@ -159,6 +175,15 @@ public class playerController : MonoBehaviour {
 			transform.Rotate (new Vector3(0,0,rotationCorrect));
 		}
 	}
+
+	public void RevertPosition() {
+		myRigidbody.MovePosition (oldCoord);
+	}
+
+	void OnTriggerEnter2D (Collider2D col) {
+		Debug.Log ("Player Triggered.");
+		RevertPosition ();
+	}
 }
 
 //		if (frameCount!=0) {
@@ -169,15 +194,3 @@ public class playerController : MonoBehaviour {
 //		}else {
 //			dest = new Vector2 (0, 0);
 //		}
-
-	void SetRotate(float negAngle, float posAngle) {
-		float rotationCorrect;
-
-		if(curFacing == Direction.Left || curFacing == Direction.Down){
-			rotationCorrect = negAngle - transform.eulerAngles.z;
-			transform.Rotate (new Vector3(0,0,rotationCorrect));
-		}else if(curFacing == Direction.Right || curFacing == Direction.Up){
-			rotationCorrect = posAngle - transform.eulerAngles.z;
-			transform.Rotate (new Vector3(0,0,rotationCorrect));
-		}
-	}
