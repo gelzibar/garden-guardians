@@ -55,14 +55,14 @@ public class playerController : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (frameCount!=0) {
-			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
-			//transform.Translate (shortMove, 0f, 0f);
-			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
-			frameCount--;
-		}else {
-			dest = new Vector2 (0, 0);
-		}
+//		if (frameCount!=0) {
+//			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
+//			//transform.Translate (shortMove, 0f, 0f);
+//			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
+//			frameCount--;
+//		}else {
+//			dest = new Vector2 (0, 0);
+//		}
 
 		CheckInput ();
 	}
@@ -143,6 +143,18 @@ public class playerController : MonoBehaviour {
 			rotationCorrect = negAngle - transform.eulerAngles.z;
 			transform.Rotate (new Vector3(0,0,rotationCorrect));
 		}else if(destinationVector > 0){
+			rotationCorrect = posAngle - transform.eulerAngles.z;
+			transform.Rotate (new Vector3(0,0,rotationCorrect));
+		}
+	}
+
+	void SetRotate(float negAngle, float posAngle) {
+		float rotationCorrect;
+
+		if(curFacing == Direction.Left || curFacing == Direction.Down){
+			rotationCorrect = negAngle - transform.eulerAngles.z;
+			transform.Rotate (new Vector3(0,0,rotationCorrect));
+		}else if(curFacing == Direction.Right || curFacing == Direction.Up){
 			rotationCorrect = posAngle - transform.eulerAngles.z;
 			transform.Rotate (new Vector3(0,0,rotationCorrect));
 		}
