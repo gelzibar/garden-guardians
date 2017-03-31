@@ -49,7 +49,7 @@ public class playerController : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (frameCount!=0) {
+		if (frameCount > 0) {
 			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
 			//transform.Translate (shortMove, 0f, 0f);
 			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
@@ -79,6 +79,11 @@ public class playerController : MonoBehaviour {
 			DetermineDest (dYVector * -1);
 			SetUnitFacing ();
 		}
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            CenterGnome();
+        }
 	}
 
 	void DetermineDest(Vector2 vector) {
@@ -114,4 +119,8 @@ public class playerController : MonoBehaviour {
 			transform.Rotate (new Vector3(0,0,rotationCorrect));
 		}
 	}
+
+    void CenterGnome() {
+
+    }
 }
