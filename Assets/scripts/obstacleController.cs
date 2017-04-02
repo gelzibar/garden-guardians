@@ -5,11 +5,11 @@ using UnityEngine;
 public class obstacleController : MonoBehaviour {
 
 
-//	void OnTriggerEnter2D (Collider2D col) {
-//		Debug.Log ("Triggered.");
-//		playerController pc = col.gameObject.GetComponent<playerController>();
-//		pc.RevertPosition ();
-//	}
+	void OnTriggerEnter2D (Collider2D col) {
+		Debug.Log ("Triggered.");
+		//playerController pc = col.gameObject.GetComponent<playerController>();
+		//pc.RevertPosition ();
+	}
 
 	// Use this for initialization
 	void Start () {

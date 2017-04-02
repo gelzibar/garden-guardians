@@ -22,7 +22,8 @@ public class playerController : MonoBehaviour {
 	private Rigidbody2D myRigidbody;
 	private Vector2 oldCoord;
 
-	public GameObject topFeeler;
+	public GameObject topFeeler, botFeeler, rightFeeler, leftFeeler;
+	private feelerController topFeelerScript, botFeelerScript, rightFeelerScript, leftFeelerScript;
 
 	enum Direction {
 		Up, Down, Left, Right
@@ -49,6 +50,11 @@ public class playerController : MonoBehaviour {
 
 		frameCount = 0;
 		maxFrames = 12;
+
+		topFeelerScript = topFeeler.GetComponent<feelerController> ();
+		botFeelerScript = botFeeler.GetComponent<feelerController> ();
+		rightFeelerScript = rightFeeler.GetComponent<feelerController> ();
+		leftFeelerScript = leftFeeler.GetComponent<feelerController> ();
 		
 	}
 	
@@ -80,16 +86,20 @@ public class playerController : MonoBehaviour {
 //			SetUnitFacing ();
 			curFacing = Direction.Right;
 			SetRotate ( 90, 270);
-			tempCoord.Set( myRigidbody.position.x + deltaX, myRigidbody.position.y);
-			ChangePosition (tempCoord);
+			if (rightFeelerScript.GetCollisionStatus () == false) {
+				tempCoord.Set (myRigidbody.position.x + deltaX, myRigidbody.position.y);
+				ChangePosition (tempCoord);
+			}
 
 		} else if (Input.GetKeyDown (KeyCode.A)) {
 //			DetermineDest (dXVector * -1);
 //			SetUnitFacing ();
 			curFacing = Direction.Left;
 			SetRotate ( 90, 270);
-			tempCoord.Set( myRigidbody.position.x - deltaX, myRigidbody.position.y);
-			ChangePosition (tempCoord);
+			if (leftFeelerScript.GetCollisionStatus () == false) {
+				tempCoord.Set (myRigidbody.position.x - deltaX, myRigidbody.position.y);
+				ChangePosition (tempCoord);
+			}
 		}
 
 		if (Input.GetKeyDown (KeyCode.W)) {
@@ -97,15 +107,19 @@ public class playerController : MonoBehaviour {
 //			SetUnitFacing ();
 			curFacing = Direction.Up;
 			SetRotate ( 180, 0);
-			tempCoord.Set( myRigidbody.position.x, myRigidbody.position.y + deltaY);
-			ChangePosition (tempCoord);
+			if (topFeelerScript.GetCollisionStatus () == false) {
+				tempCoord.Set (myRigidbody.position.x, myRigidbody.position.y + deltaY);
+				ChangePosition (tempCoord);
+			}
 		} else if (Input.GetKeyDown (KeyCode.S)) {
 //			DetermineDest (dYVector * -1);
 //			SetUnitFacing ();
 			curFacing = Direction.Down;
 			SetRotate ( 180, 0);
-			tempCoord.Set( myRigidbody.position.x, myRigidbody.position.y - deltaY);
-			ChangePosition (tempCoord);
+			if (botFeelerScript.GetCollisionStatus () == false) {
+				tempCoord.Set (myRigidbody.position.x, myRigidbody.position.y - deltaY);
+				ChangePosition (tempCoord);
+			}
 		}
 
         if(Input.GetKeyDown(KeyCode.E))
@@ -126,17 +140,29 @@ public class playerController : MonoBehaviour {
 	void ChangePosition(Vector2 newCoord) {
 		oldCoord.Set (myRigidbody.position.x, myRigidbody.position.y);
 		myRigidbody.MovePosition(newCoord);
+		MoveAllFeelers (newCoord);
 		//topFeeler.transform.position.Set (newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
 		//topFeeler.riposition.Set(newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
-		Rigidbody2D tFeel = topFeeler.GetComponent<Rigidbody2D>();
-		Vector2 feelVec = new Vector2 (newCoord.x, newCoord.y);
-		feelVec.y += .32f;
-		tFeel.MovePosition (feelVec);
-		//topFeeler.transform.position.y = newCoord.y + .32f;
+	}
 
+	void MoveFeeler(GameObject feeler, Vector2 newCoord) {
+		Rigidbody2D rbFeel = feeler.GetComponent<Rigidbody2D>();
+		rbFeel.MovePosition (newCoord);
+	}
 
+	void MoveAllFeelers(Vector2 newCoord) {
+		Vector2 topVec = new Vector2 (newCoord.x, newCoord.y + .32f);
 
+		Vector2 botVec = new Vector2 (newCoord.x, newCoord.y - .32f);
 
+		Vector2 rightVec = new Vector2 (newCoord.x + .32f, newCoord.y);
+
+		Vector2 leftVec = new Vector2 (newCoord.x - .32f, newCoord.y);
+
+		MoveFeeler (topFeeler, topVec);
+		MoveFeeler (botFeeler, botVec);
+		MoveFeeler (rightFeeler, rightVec);
+		MoveFeeler (leftFeeler, leftVec);
 	}
 
 	void SetUnitFacing() {
