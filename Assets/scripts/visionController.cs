@@ -2,14 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class feelerController : MonoBehaviour {
+public class visionController : MonoBehaviour {
 
 	private bool collisionStatus;
-
-	private Rigidbody2D myRigidBody;
-
 	public bool toDestroy;
+	public bool firstFixedUpdate;
 
+
+	// Use this for initialization
+	void Start () {
+		collisionStatus = false;
+		toDestroy = false;
+		firstFixedUpdate = false;
+		
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		if (toDestroy == true) {
+			Destroy (gameObject, .5f);
+		}
+	}
+
+	void FixedUpdate() {
+		firstFixedUpdate = true;
+	
+	}
 
 	void OnTriggerEnter2D (Collider2D col) {
 
@@ -30,38 +48,11 @@ public class feelerController : MonoBehaviour {
 		}
 	}
 
-	// Use this for initialization
-	void Start () {
-		// Keep an eye on this, may mess things up if spawned on top of a obstacle
-		this.collisionStatus = false;
-
-		toDestroy = false;
-
-		myRigidBody = GetComponent<Rigidbody2D> ();
-
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (toDestroy == true) {
-			Destroy (gameObject, .5f);
-		}
-
-	}
-
-	void ReportCollision () {
-		
-	}
-
 	public bool GetCollisionStatus() {
 		return collisionStatus;
 	}
 
 	public void SetCollisionStatus(bool newStatus) {
 		collisionStatus = newStatus;
-	}
-
-	void OnDestroy() {
-		//Debug.Log ("Destroyed");
 	}
 }

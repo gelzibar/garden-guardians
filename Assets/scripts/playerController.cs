@@ -10,7 +10,6 @@ public class playerController : MonoBehaviour {
 	private float tileWidth, tileHeight;
 	// combined value. Used to apply movement
 	private float deltaX, deltaY;
-	private Vector2 dXVector, dYVector;
 	// current value of how many FixedUpdate() remain before destination is reached.
 	private int frameCount;
 	// total value of how many FixedUpdate() are required to reach destination.
@@ -18,12 +17,20 @@ public class playerController : MonoBehaviour {
 	private int maxFrames;
 
 	private Vector2 dest;
-	private Vector2 shortMove;
 	private Rigidbody2D myRigidbody;
-	private Vector2 oldCoord;
 
 	public GameObject topFeeler, botFeeler, rightFeeler, leftFeeler;
 	private feelerController topFeelerScript, botFeelerScript, rightFeelerScript, leftFeelerScript;
+
+	public GameObject pVision;
+	private int visionCount;
+	private GameObject farTopVis, farBotVis, farLeftVis, farRightVis;
+
+	public GameObject tVis, rVis, bVis, lVis;
+	public GameObject tlVis, trVis, blVis, brVis, cVis;
+
+
+	private SpriteRenderer sprite;
 
 	enum Direction {
 		Up, Down, Left, Right
@@ -33,18 +40,19 @@ public class playerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		sprite = GetComponent<SpriteRenderer> ();
+		Debug.Log (sprite);
 		Debug.Log ("Player Start Method");
-		offset = new Vector2 (0.16f, 0.16f);
-		tileWidth = 0.16f;
-		tileHeight = 0.16f;
+		//offset = new Vector2 (0.16f, 0.16f);
+		offset = new Vector2 (0, 0);
+		tileWidth = 1;
+		tileHeight = 1;
 
 		deltaX = offset.x + tileWidth;
 		deltaY = offset.y + tileHeight;
-		dXVector = new Vector2 (deltaX, 0);
-		dYVector = new Vector2 (0, deltaY);
 
 		dest = new Vector2 (0,0);
-		shortMove = new Vector2 (0, 0);
 
 		myRigidbody = GetComponent<Rigidbody2D> ();
 
@@ -55,11 +63,23 @@ public class playerController : MonoBehaviour {
 		botFeelerScript = botFeeler.GetComponent<feelerController> ();
 		rightFeelerScript = rightFeeler.GetComponent<feelerController> ();
 		leftFeelerScript = leftFeeler.GetComponent<feelerController> ();
+
+
+		farTopVis = cVis;
+		farBotVis = cVis;
+		farLeftVis = cVis;
+		farRightVis = cVis;
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		CheckInput ();	
+		GrantVision (farTopVis, Direction.Up);
+		GrantVision (farBotVis, Direction.Down);
+		GrantVision (farLeftVis, Direction.Left);
+		GrantVision (farRightVis, Direction.Right);
+		//CleanUpVision ();
 
 	}
 
@@ -74,7 +94,10 @@ public class playerController : MonoBehaviour {
 //			dest = new Vector2 (0, 0);
 //		}
 
-		CheckInput ();
+	}
+
+	void LateUpdate() {
+
 	}
 
 
@@ -132,15 +155,17 @@ public class playerController : MonoBehaviour {
 
 		if (frameCount==0) {
 			dest = new Vector2 (vector.x, vector.y);
-			shortMove = dest / maxFrames;
 			frameCount = maxFrames;
 		}
 	}
 
 	void ChangePosition(Vector2 newCoord) {
-		oldCoord.Set (myRigidbody.position.x, myRigidbody.position.y);
+		//oldCoord.Set (myRigidbody.position.x, myRigidbody.position.y);
 		myRigidbody.MovePosition(newCoord);
 		MoveAllFeelers (newCoord);
+		MoveCornerFeelers (newCoord);
+
+		CleanUpVision ();
 		//topFeeler.transform.position.Set (newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
 		//topFeeler.riposition.Set(newCoord.x, newCoord.y + .32f, topFeeler.transform.position.z);
 	}
@@ -150,14 +175,38 @@ public class playerController : MonoBehaviour {
 		rbFeel.MovePosition (newCoord);
 	}
 
+	void MoveCornerFeelers(Vector2 newCoord) {
+		Vector2 tVec = new Vector2 (newCoord.x, newCoord.y + tileHeight);
+		Vector2 rVec = new Vector2 (newCoord.x + tileWidth, newCoord.y);
+		Vector2 bVec = new Vector2 (newCoord.x, newCoord.y - tileHeight);
+		Vector2 lVec = new Vector2 (newCoord.x - tileWidth, newCoord.y);
+		Vector2 tlVec = new Vector2 (newCoord.x - tileWidth, newCoord.y + tileHeight);
+
+		Vector2 trVec = new Vector2 (newCoord.x + tileWidth, newCoord.y + tileHeight);
+
+		Vector2 blVec = new Vector2 (newCoord.x - tileWidth, newCoord.y - tileHeight);
+
+		Vector2 brVec = new Vector2 (newCoord.x + tileWidth, newCoord.y - tileHeight);
+
+		MoveFeeler (tlVis, tlVec);
+		MoveFeeler (trVis, trVec);
+		MoveFeeler (blVis, blVec);
+		MoveFeeler (brVis, brVec);
+		MoveFeeler (tVis, tVec);
+		MoveFeeler (rVis, rVec);
+		MoveFeeler (bVis, bVec);
+		MoveFeeler (lVis, lVec);
+		MoveFeeler (cVis, newCoord);
+	}
+
 	void MoveAllFeelers(Vector2 newCoord) {
-		Vector2 topVec = new Vector2 (newCoord.x, newCoord.y + .32f);
+		Vector2 topVec = new Vector2 (newCoord.x, newCoord.y + tileHeight);
 
-		Vector2 botVec = new Vector2 (newCoord.x, newCoord.y - .32f);
+		Vector2 botVec = new Vector2 (newCoord.x, newCoord.y - tileHeight);
 
-		Vector2 rightVec = new Vector2 (newCoord.x + .32f, newCoord.y);
+		Vector2 rightVec = new Vector2 (newCoord.x + tileWidth, newCoord.y);
 
-		Vector2 leftVec = new Vector2 (newCoord.x - .32f, newCoord.y);
+		Vector2 leftVec = new Vector2 (newCoord.x - tileWidth, newCoord.y);
 
 		MoveFeeler (topFeeler, topVec);
 		MoveFeeler (botFeeler, botVec);
@@ -202,21 +251,79 @@ public class playerController : MonoBehaviour {
 		}
 	}
 
-	public void RevertPosition() {
-		myRigidbody.MovePosition (oldCoord);
+	void OnTriggerEnter2D (Collider2D col) {
+//		Debug.Log ("Player Triggered.");
+//		RevertPosition ();
 	}
 
-	void OnTriggerEnter2D (Collider2D col) {
-		Debug.Log ("Player Triggered.");
-		RevertPosition ();
+	public Vector3 GetPosition() {
+		return transform.position;
+	}
+
+	void GrantVision(GameObject vision, Direction dir) {
+		visionController sVision = vision.GetComponent<visionController> ();
+		Vector3 nextPos = new Vector3();
+		switch(dir) {
+		case Direction.Up:
+			nextPos = new Vector3 (vision.transform.position.x, vision.transform.position.y + 1, vision.transform.position.z);
+			break;
+		case Direction.Down:
+			nextPos = new Vector3 (vision.transform.position.x, vision.transform.position.y - 1, vision.transform.position.z);
+			break;
+		case Direction.Left:
+			nextPos = new Vector3 (vision.transform.position.x - 1, vision.transform.position.y, vision.transform.position.z);
+			break;
+		case Direction.Right:
+			nextPos = new Vector3 (vision.transform.position.x + 1, vision.transform.position.y, vision.transform.position.z);
+			break;
+			
+		}
+
+		if (sVision.firstFixedUpdate == true) {
+			if (sVision.GetCollisionStatus () == false) {
+				GameObject cloneVision = Instantiate (pVision, nextPos, new Quaternion ());
+				cloneVision.tag = "ray";
+				visionCount++;
+
+				switch (dir) {
+				case Direction.Up:
+					farTopVis = cloneVision;
+					break;
+				case Direction.Down:
+					farBotVis = cloneVision;
+					break;
+				case Direction.Left:
+					farLeftVis = cloneVision;
+					break;
+				case Direction.Right:
+					farRightVis = cloneVision;
+					break;
+				}
+			}
+		}
+	}
+
+	void CleanUpVision() {
+		GameObject[] visionClones = new GameObject[0];
+
+		visionClones = GameObject.FindGameObjectsWithTag("ray");
+
+		foreach(GameObject visionClone in visionClones) {
+			visionController sClone = visionClone.GetComponent<visionController> ();
+			Rigidbody2D rbClone = visionClone.GetComponent<Rigidbody2D> ();
+//			Collider2D cClone = visionClone.GetComponent<Collider2D> ();
+			sClone.toDestroy = true;
+			rbClone.MovePosition(new Vector2(-100, -100));
+//			cClone.enabled = false;
+		}
+
+		visionController sVision = cVis.GetComponent<visionController> ();
+		sVision.firstFixedUpdate = false;
+
+
+		farTopVis = cVis;
+		farBotVis = cVis;
+		farLeftVis = cVis;
+		farRightVis = cVis;
 	}
 }
-
-//		if (frameCount!=0) {
-//			dest = new Vector2 (dest.x - shortMove.x, dest.y - shortMove.y);
-//			//transform.Translate (shortMove, 0f, 0f);
-//			myRigidbody.MovePosition(new Vector2(myRigidbody.position.x + shortMove.x, myRigidbody.position.y + shortMove.y));
-//			frameCount--;
-//		}else {
-//			dest = new Vector2 (0, 0);
-//		}
