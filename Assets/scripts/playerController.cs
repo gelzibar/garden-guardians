@@ -40,18 +40,39 @@ public class playerController : MonoBehaviour {
 
     private Direction curFacing;
 
+    // Winning!
+    private bool winState;
+    private float rotateSpeed;
+
     // Use this for initialization
     void Start() {
         tileSize = 1;
         deltaPos = tileSize;
         myRigidbody = GetComponent<Rigidbody2D>();
         ResetFarVision();
+        winState = false;
+        rotateSpeed = 0;
     }
 
     // Update is called once per frame
     void Update() {
-        CheckInput();
-        GrantAllVision();
+        if (winState == false)
+        {
+            CheckInput();
+            GrantAllVision();
+        }else
+        {
+            if(rotateSpeed < 100f)
+            {
+                rotateSpeed = rotateSpeed + .5f;
+            }else
+            {
+                this.GetComponentInParent<SpriteRenderer>().enabled = false;
+                //float curZ = transform.position.z + 1.1f;
+                //transform.position.Set(transform.position.x, transform.position.y, 10);
+            }
+            transform.Rotate(new Vector3(0, 0, rotateSpeed));
+        }
     }
 
     void CheckInput() {
@@ -283,5 +304,10 @@ public class playerController : MonoBehaviour {
                 break;
         }
         return returnVec;
+    }
+
+    public void SetWinning(bool winState)
+    {
+        this.winState = winState;
     }
 }
