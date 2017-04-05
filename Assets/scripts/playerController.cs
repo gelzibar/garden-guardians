@@ -46,16 +46,18 @@ public class playerController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        tileSize = 1;
+        tileSize = 1f;
         deltaPos = tileSize;
         myRigidbody = GetComponent<Rigidbody2D>();
         ResetFarVision();
         winState = false;
         rotateSpeed = 0;
+		curFacing = Direction.Up;
     }
 
     // Update is called once per frame
     void Update() {
+		Debug.LogError ("topFeel: " + topFeeler.ToString());
         if (winState == false)
         {
             CheckInput();
@@ -236,21 +238,31 @@ public class playerController : MonoBehaviour {
 
     void ExecuteMovement(Direction dir)
     {
+		Debug.LogError ("Execute Move Started");
         Vector2 tempCoord = new Vector2();
         curFacing = dir;
         GameObject curFeeler = DetermineFeeler(dir);
+		Debug.LogError ("curFeeler: " + curFeeler);
         Vector2 offsetAngle = DetermineOffsetAngles(dir);
+		Debug.LogError ("offsetAngle: " + offsetAngle);
         Vector2 curDelta = DetermineDelta(dir);
+		Debug.LogError ("curDelta: " + curDelta);
         SetRotate(offsetAngle.x, offsetAngle.y);
         if (curFeeler.GetComponent<feelerController>().GetCollisionStatus() == false)
         {
+			Debug.LogError ("Feeler Step 1");
             tempCoord.Set(myRigidbody.position.x + curDelta.x, myRigidbody.position.y + curDelta.y);
+			Debug.LogError ("Feeler Step 2");
             ChangePosition(tempCoord);
+			Debug.LogError ("Feeler Step 3");
         }
+		Debug.LogError ("Execute Move Exited");
+
     }
 
     Vector2 DetermineOffsetAngles(Direction dir)
     {
+		Debug.LogError ("Determine Angle Started");
         Vector2 curVector = new Vector2();
         if (dir == Direction.Left || dir == Direction.Right)
         {
@@ -260,11 +272,14 @@ public class playerController : MonoBehaviour {
             curVector = new Vector2(180, 0);
         }
 
+		Debug.LogError ("Determine Angle Exited");
         return curVector;
+
     }
 
     GameObject DetermineFeeler(Direction dir)
     {
+		Debug.LogError ("Determine Feeler Started");
         GameObject curFeeler = new GameObject();
 
         switch(dir)
@@ -282,27 +297,33 @@ public class playerController : MonoBehaviour {
                 curFeeler = rightFeeler;
                 break;
         }
+		Debug.LogError ("curFeeler: " + curFeeler);
+		Debug.LogError ("Determine Feeler Exited");
         return curFeeler;
+
     }
 
     Vector2 DetermineDelta(Direction dir)
     {
-        Vector2 returnVec = new Vector2();
+//		Debug.LogError ("Determine Delta Started");
+//		Debug.LogError (deltaPos);
+        Vector2 returnVec = new Vector2(0,0);
         switch(dir)
         {
             case Direction.Up:
                 returnVec.Set(0, deltaPos);
                 break;
             case Direction.Down:
-                returnVec.Set(0, deltaPos * -1);
+                returnVec.Set(0, deltaPos * -1f);
                 break;
             case Direction.Left:
-                returnVec.Set(deltaPos * -1, 0);
+                returnVec.Set(deltaPos * -1f, 0);
                 break;
             case Direction.Right:
                 returnVec.Set(deltaPos, 0);
                 break;
         }
+//		Debug.LogError ("Determine Delta Exited");
         return returnVec;
     }
 
